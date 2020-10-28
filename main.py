@@ -240,7 +240,7 @@ def check_mention(update, context):
     else:
         return
     users = set()
-    roles = [find_role(word) for word in text.split() if find_role(word)]
+    roles = [match[1] for match in ROLE_PATTERN.findall(text)]
     for role in roles:
         result = DB.select(group_id=chat_id, role=role)
         users.update(record.user_id for record in result)
