@@ -151,7 +151,7 @@ def add_role_command(update, context):
         return
 
     DB.insert(user_id, chat_id, role)
-    update.message.reply_text(f"Role @{role} added")
+    update.message.reply_text(f"Role @{role} added to you")
 
 
 @prefix_command(command="del", usage="<role>", help="Delete role")
@@ -171,7 +171,7 @@ def delete_role_command(update, context):
 
     result = DB.delete(user_id=user_id, group_id=chat_id, role=role)
     if result:
-        update.message.reply_text(f"Role @{role} deleted")
+        update.message.reply_text(f"Role @{role} deleted from you")
     else:
         update.message.reply_text(f"You didn't have @{role}.")
 
@@ -248,7 +248,7 @@ def create_role_command(update, context):
         return
 
     if DB.exist(chat_id, role):
-        update.message.reply_text(f"Role @{role} exists")
+        update.message.reply_text(f"Role @{role} exists in group")
         return
     DB.insert(-1, chat_id, role)
     update.message.reply_text(f"Role @{role} created. Users can join via ;add command")
@@ -272,7 +272,7 @@ def purge_role_command(update, context):
         update.message.reply_text(f"Role @{role} not found")
         return
     DB.delete(group_id=chat_id, role=role)
-    update.message.reply_text(f"Role @{role} purged")
+    update.message.reply_text(f"Role @{role} purged from group")
 
 
 @only_registered_group
