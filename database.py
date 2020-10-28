@@ -15,14 +15,14 @@ class Database:
                     ");")
         self.db.commit()
 
-    def select(self, master=True, **kwargs):
+    def select(self, master=False, **kwargs):
         req = "SELECT * FROM roletable WHERE " + " AND ".join(f"{key}=%s" for key in kwargs.keys())
         if not kwargs:
             req = "SELECT * FROM roletable"
         cur = self.db.cursor()
         cur.execute(req, list(kwargs.values()))
         result = cur.fetchall()
-        if master:
+        if not master:
             result = filter(lambda record: record.user_id != -1, result)
         return list(result)
 

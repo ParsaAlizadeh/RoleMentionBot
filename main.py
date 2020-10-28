@@ -85,6 +85,7 @@ def get_command_args(message):
 
 
 def get_available(bot, group_id, users: list):
+    users = list(filter(lambda user_id: user_id != -1, users))
     chat_members = [bot.get_chat_member(group_id, user_id) for user_id in users]
     available = [member for member in chat_members
                  if member.status not in IGNORE_STATUS or member.is_member]
@@ -214,18 +215,17 @@ def get_user_info_command(update, context):
 @admin_command
 def get_group_info_command(update, context):
     chat_id = update.message.chat_id
-    result = DB.select(group_id=chat_id)
+    result = DB.select(master=True, group_id=chat_id)
     roles = {}
     for record in result:
         roles.setdefault(record.role,  []).append(record.user_id)
     message = []
     for role in roles.keys():
         available = get_available(context.bot, chat_id, roles[role])
-        if not available:
-            continue
         message.append(f"({len(available)}) @{role}: ")
         message += [f"├─{member.user.full_name}" for member in available]
-        message[-1] = "└" + message[-1][1:]
+        if available:
+            message[-1] = "└" + message[-1][1:]
     if not message:
         update.message.reply_text("No entry found for this group")
     else:
