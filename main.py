@@ -248,7 +248,7 @@ def create_role_command(update, context):
         update.message.reply_text(f"Role @{role} exists")
         return
     DB.insert(-1, chat_id, role)
-    update.message.reply_text(f"Role @{role} created. Users can join via `;add` command")
+    update.message.reply_text(f"Role @{role} created. Users can join via ;add command")
 
 
 @prefix_command(command="purge", usage="<role>", help="Delete existing role (admin only)")
