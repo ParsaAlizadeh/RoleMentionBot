@@ -232,7 +232,7 @@ def get_group_info_command(update, context):
         update.message.reply_text("\n".join(message))
 
 
-@prefix_command(command="create", usage="<role>", help="Create a role (admin only)")
+@prefix_command(command="create", usage="<role>", help="Create group role (admin only)")
 @only_registered_group
 @admin_command
 def create_role_command(update, context):
@@ -253,7 +253,7 @@ def create_role_command(update, context):
     update.message.reply_text(f"Role @{role} created. Users can join via ;add command")
 
 
-@prefix_command(command="purge", usage="<role>", help="Delete existing role (admin only)")
+@prefix_command(command="purge", usage="<role>", help="Purge group role (admin only)")
 @only_registered_group
 @admin_command
 def purge_role_command(update, context):
