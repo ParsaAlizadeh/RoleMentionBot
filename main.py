@@ -1,7 +1,6 @@
+from .database import Database
 import os
 import re
-import psycopg2
-import psycopg2.extras
 import telegram
 from telegram.ext import Updater, CommandHandler, PrefixHandler, MessageHandler, Filters
 from typing import NamedTuple, Callable
@@ -21,7 +20,7 @@ if not TOKEN:
     raise Exception("TOKEN not found")
 
 DB_URL = os.environ['DATABASE_URL']
-DB_CONN = psycopg2.connect(DB_URL, sslmode='require', cursor_factory=psycopg2.extras.NamedTupleCursor)
+DB = Database(DB_URL)
 
 REGISTERED = os.getenv("REGISTERED")
 if REGISTERED is None:
@@ -40,17 +39,6 @@ class Command(NamedTuple):
 
 
 CommandList = []
-
-
-def init_db():
-    cur = DB_CONN.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS roletable ("
-                "id SERIAL PRIMARY KEY,"
-                "user_id BIGINT NOT NULL,"
-                "group_id BIGINT NOT NULL,"
-                "role TEXT NOT NULL"
-                ");")
-    DB_CONN.commit()
 
 
 def prefix_command(command, **kwargs):
@@ -150,22 +138,16 @@ def add_role_command(update, context):
         update.message.reply_text("Bad formatted request")
         return
 
-    cur = DB_CONN.cursor()
-    cur.execute("SELECT * FROM roletable WHERE user_id=%s AND group_id=%s AND role=%s", (user_id, chat_id, role))
-    result = cur.fetchall()
-    if result:
+    if DB.select(user_id=user_id, group_id=chat_id, role=role):
         update.message.reply_text(f"Role @{role} exists for you")
         return
 
-    cur.execute("SELECT * FROM roletable WHERE user_id=%s", (user_id,))
-    result = cur.fetchall()
+    result = DB.select(user_id=user_id)
     if len(result) >= MAX_ROLES:
         update.message.reply_text(f"You have reached the maximum number of roles :(")
         return
 
-    cur.execute("INSERT INTO roletable(user_id, group_id, role) "
-                "VALUES (%s, %s, %s)", (user_id, chat_id, role))
-    DB_CONN.commit()
+    DB.insert(user_id, chat_id, role)
     update.message.reply_text(f"Role @{role} added")
 
 
@@ -184,12 +166,8 @@ def delete_role_command(update, context):
         update.message.reply_text("Bad formatted request")
         return
 
-    cur = DB_CONN.cursor()
-    cur.execute("DELETE FROM roletable WHERE user_id=%s AND group_id=%s AND role=%s", (user_id, chat_id, role))
-    rowcount = cur.rowcount
-    DB_CONN.commit()
-
-    if rowcount:
+    result = DB.delete(user_id=user_id, group_id=chat_id, role=role)
+    if result:
         update.message.reply_text(f"Role @{role} deleted")
     else:
         update.message.reply_text(f"You didn't have @{role}.")
@@ -209,9 +187,7 @@ def get_role_info_command(update, context):
         update.message.reply_text("Bad formatted request")
         return
 
-    cur = DB_CONN.cursor()
-    cur.execute("SELECT * FROM roletable WHERE group_id=%s AND role=%s", (chat_id, role))
-    result = cur.fetchall()
+    result = DB.select(group_id=chat_id, role=role)
     available = get_available(context.bot, chat_id, [record.user_id for record in result])
     if not available:
         update.message.reply_text("No user with this role")
@@ -226,9 +202,7 @@ def get_role_info_command(update, context):
 def get_user_info_command(update, context):
     chat_id = update.message.chat_id
     user_id = update.effective_user.id
-    cur = DB_CONN.cursor()
-    cur.execute("SELECT (role) FROM roletable WHERE group_id=%s AND user_id=%s", (chat_id, user_id))
-    result = cur.fetchall()
+    result = DB.select(group_id=chat_id, user_id=user_id)
     roles = [f"@{item[0]}" for item in result]
     update.message.reply_text("Your roles: \n" + " ".join(roles))
 
@@ -238,9 +212,7 @@ def get_user_info_command(update, context):
 @admin_command
 def get_group_info_command(update, context):
     chat_id = update.message.chat_id
-    cur = DB_CONN.cursor()
-    cur.execute("SELECT * FROM roletable WHERE group_id=%s", (chat_id,))
-    result = cur.fetchall()
+    result = DB.select(group_id=chat_id)
     roles = {}
     for record in result:
         roles.setdefault(record.role,  []).append(record.user_id)
@@ -260,7 +232,6 @@ def get_group_info_command(update, context):
 
 @only_registered_group
 def check_mention(update, context):
-    cur = DB_CONN.cursor()
     chat_id = update.message.chat_id
     if update.message.text is not None:
         text = update.message.text
@@ -271,8 +242,7 @@ def check_mention(update, context):
     users = set()
     roles = [find_role(word) for word in text.split() if find_role(word)]
     for role in roles:
-        cur.execute("SELECT * FROM roletable WHERE group_id=%s AND role=%s", (chat_id, role))
-        result = cur.fetchall()
+        result = DB.select(group_id=chat_id, role=role)
         users.update(record.user_id for record in result)
 
     users = list(users)
@@ -286,7 +256,7 @@ def check_mention(update, context):
 
 
 def main():
-    init_db()
+    DB.init_tables()
     updater = Updater(TOKEN, use_context=True)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start_command))
