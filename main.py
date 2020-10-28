@@ -203,7 +203,7 @@ def get_user_info_command(update, context):
     chat_id = update.message.chat_id
     user_id = update.effective_user.id
     result = DB.select(group_id=chat_id, user_id=user_id)
-    roles = [f"@{item[0]}" for item in result]
+    roles = [f"@{record.role}" for record in result]
     update.message.reply_text("Your roles: \n" + " ".join(roles))
 
 
