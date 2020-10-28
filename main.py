@@ -138,10 +138,12 @@ def add_role_command(update, context):
         update.message.reply_text("Bad formatted request")
         return
 
+    if not DB.exist(chat_id, role):
+        update.message.reply_text(f"Role @{role} hasn't been created")
+        return
     if DB.select(user_id=user_id, group_id=chat_id, role=role):
         update.message.reply_text(f"Role @{role} exists for you")
         return
-
     result = DB.select(user_id=user_id)
     if len(result) >= MAX_ROLES:
         update.message.reply_text(f"You have reached the maximum number of roles :(")
