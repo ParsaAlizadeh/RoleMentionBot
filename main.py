@@ -230,6 +230,48 @@ def get_group_info_command(update, context):
         update.message.reply_text("\n".join(message))
 
 
+@prefix_command(command="create", usage="<role>", help="Create a role (admin only)")
+@only_registered_group
+@admin_command
+def create_role_command(update, context):
+    chat_id = update.message.chat_id
+    args = get_command_args(update.message.text)
+    if len(args) != 1:
+        update.message.reply_text("Bad formatted request")
+        return
+    role = find_role(args[0])
+    if not role:
+        update.message.reply_text("Bad formatted request")
+        return
+
+    if DB.exist(chat_id, role):
+        update.message.reply_text(f"Role @{role} exists")
+        return
+    DB.insert(-1, chat_id, role)
+    update.message.reply_text(f"Role @{role} created. Users can join via `;add` command")
+
+
+@prefix_command(command="purge", usage="<role>", help="Delete existing role (admin only)")
+@only_registered_group
+@admin_command
+def purge_role_command(update, context):
+    chat_id = update.message.chat_id
+    args = get_command_args(update.message.text)
+    if len(args) != 1:
+        update.message.reply_text("Bad formatted request")
+        return
+    role = find_role(args[0])
+    if not role:
+        update.message.reply_text("Bad formatted request")
+        return
+
+    if not DB.exist(chat_id, role):
+        update.message.reply_text(f"Role @{role} not found")
+        return
+    DB.delete(group_id=chat_id, role=role)
+    update.message.reply_text(f"Role @{role} purged")
+
+
 @only_registered_group
 def check_mention(update, context):
     chat_id = update.message.chat_id
