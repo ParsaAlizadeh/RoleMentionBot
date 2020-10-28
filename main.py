@@ -215,7 +215,7 @@ def get_user_info_command(update, context):
 @admin_command
 def get_group_info_command(update, context):
     chat_id = update.message.chat_id
-    result = DB.select(master=True, group_id=chat_id)
+    result = DB.select(group_id=chat_id)
     roles = {}
     for record in result:
         roles.setdefault(record.role,  []).append(record.user_id)
