@@ -20,7 +20,7 @@ class Database:
         if not kwargs:
             req = "SELECT * FROM roletable"
         cur = self.db.cursor()
-        cur.execute(req, kwargs.values())
+        cur.execute(req, list(kwargs.values()))
         result = cur.fetchall()
         if master:
             result = filter(lambda record: record.user_id != -1, result)
@@ -37,7 +37,7 @@ class Database:
         if not kwargs:
             req = "DELETE FROM roletable"
         cur = self.db.cursor()
-        cur.execute(req, kwargs.values())
+        cur.execute(req, list(kwargs.values()))
         return cur.rowcount
 
     def exist(self, group_id, role):
