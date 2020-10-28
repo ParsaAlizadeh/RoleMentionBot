@@ -219,7 +219,7 @@ def get_group_info_command(update, context):
     roles = {}
     for record in result:
         roles.setdefault(record.role,  []).append(record.user_id)
-    roles = sorted(roles.items(), key=lambda item: -len(item[1]))
+    roles = sorted(roles.items(), key=lambda item: (-len(item[1]), item[0]))
     message = []
     for role, users in roles:
         available = get_available(context.bot, chat_id, users)
