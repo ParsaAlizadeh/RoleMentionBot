@@ -8,7 +8,7 @@ from typing import NamedTuple, Callable
 PREFIX = os.getenv("PREFIX", ";")
 BATCH = int(os.getenv("BATCH", 7))
 MAX_ROLES = int(os.getenv("MAX_ROLES", 10))
-ROLE_PATTERN = re.compile(r"^@([a-zA-Z0-9_]{5,32})$")
+ROLE_PATTERN = re.compile(r"(\s|^)@([a-zA-Z0-9_]{5,32})")
 IGNORE_STATUS = (telegram.ChatMember.LEFT,
                  telegram.ChatMember.KICKED,
                  telegram.ChatMember.RESTRICTED)
@@ -74,10 +74,10 @@ def only_registered_group(func):
 
 
 def find_role(message):
-    match = ROLE_PATTERN.match(message)
+    match = ROLE_PATTERN.fullmatch(message)
     if not match:
         return None
-    return match.group(1)
+    return match.group(2)
 
 
 def get_command_args(message):
