@@ -88,9 +88,22 @@ def get_command_args(message):
 
 def get_available(bot, group_id, users: list):
     users = list(filter(lambda user_id: user_id != -1, users))
-    chat_members = [bot.get_chat_member(group_id, user_id) for user_id in users]
-    available = [member for member in chat_members
-                 if member.status not in IGNORE_STATUS or member.is_member]
+    chat_members = []
+    for user_id in users:
+        try:
+            chat_members.append(
+                bot.get_chat_member(group_id, user_id)
+            )
+        # Users leaving groups in past may cause exception
+        except telegram.TelegramError:
+            logging.error(
+                'Get chat member faild. group_id=%s user_id=%s',
+                group_id, user_id
+            )
+    available = [
+        member for member in chat_members
+        if member.status not in IGNORE_STATUS or member.is_member
+    ]
     return available
 
 
