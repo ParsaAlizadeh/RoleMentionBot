@@ -13,7 +13,22 @@ Members can join some roles and get notified when the role mentioned.
 | `TOKEN`      | Bot token                                   | N/A     |
 | `REGISTERED` | Registered groups id, separated by `:`      | N/A     |
 
+
 You may set variables in `.env` file.
+
+### Webhook
+
+In case you want to use webhooks instead of polling, you need to set these extra variables.
+
+| Name              | Description                                                         | Example                 |
+|:-----------------:|:--------------------------------------------------------------------|:-----------------------:|
+| `DEBUG`           | Set this to `false`                                                 | `false`                 |
+| `WEBHOOK_URL`     | Public URL of webhook. RoleMentionBot adds `TOKEN` at the end of it | `https://example.com`   |
+| `CERT_FILEPATH`   | Location of certificate file                                        | `/etc/certs/cert.pem`   |
+| `PORT`            | Local port of webhook                                               | `5000`                  |
+
+You need to setup nginx (or any other reverse proxy) to pass requests
+from `{WEBHOOK_URL}/{TOKEN}` to `127.0.0.1:{PORT}/{TOKEN}`.
 
 ## Docker
 If you know docker, you know...
