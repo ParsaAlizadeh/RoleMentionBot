@@ -1,3 +1,6 @@
+import os
+import re
+import telegram
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,7 +19,6 @@ if not TOKEN:
     raise Exception("TOKEN not found")
 
 DB_FILE = os.getenv("DBFILE", "db/role.db")
-DB = Database(DB_FILE)
 
 REGISTERED = os.getenv("REGISTERED")
 if REGISTERED is None:

@@ -1,11 +1,12 @@
-import os
-import re
 import logging
 import telegram
 from telegram.ext import Updater, CommandHandler, PrefixHandler, MessageHandler, Filters
 from typing import NamedTuple, Callable
 from .database import Database
 from .settings import *
+
+
+DB = Database(DB_FILE)
 
 
 class Command(NamedTuple):
