@@ -311,7 +311,7 @@ def main():
     else:
         logging.info("Start webhook")
         updater.start_webhook(
-            listen='127.0.0.1',
+            listen='0.0.0.0',
             port=PORT,
             url_path=TOKEN,
             webhook_url=f'{WEBHOOK_URL}/{TOKEN}',
