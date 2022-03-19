@@ -25,7 +25,7 @@ if REGISTERED is None:
     raise Exception("No registered groups")
 REGISTERED = set(map(int, REGISTERED.split(':')))
 
-DEBUG = os.getenv("DEBUG")
+DEBUG = os.getenv("DEBUG", "true")
 DEBUG = DEBUG.lower() in ["true", "yes"]
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 CERT_FILEPATH = os.getenv("CERT_FILEPATH")
