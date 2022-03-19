@@ -306,8 +306,10 @@ def main():
     dispatcher.add_handler(MessageHandler(Filters.all, check_mention))
 
     if DEBUG:
+        logging.info("Start polling")
         updater.start_polling()
     else:
+        logging.info("Start webhook")
         updater.start_webhook(
             listen='127.0.0.1',
             port=PORT,
