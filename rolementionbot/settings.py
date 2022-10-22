@@ -7,7 +7,11 @@ load_dotenv()
 PREFIX = os.getenv("PREFIX", ";")
 BATCH = int(os.getenv("BATCH", 7))
 MAX_ROLES = int(os.getenv("MAX_ROLES", 10))
-ROLE_PATTERN = re.compile(r"(\s|^)@([a-zA-Z0-9_]{5,32})")
+
+ROLENAME_PATTERN_TEXT = r"(?P<rolename>[a-zA-Z0-9_]{5,32})"
+ROLENAME_PATTERN = re.compile(r"^@?" + ROLENAME_PATTERN_TEXT + r"$")
+ROLE_PATTERN = re.compile(r"(\s|^)@" + ROLENAME_PATTERN_TEXT)
+
 IGNORE_STATUS = (telegram.ChatMember.LEFT,
                  telegram.ChatMember.KICKED,
                  telegram.ChatMember.RESTRICTED)

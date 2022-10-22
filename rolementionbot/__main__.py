@@ -52,11 +52,9 @@ def only_registered_group(func):
     return wrapper
 
 
-def find_role(message):
-    match = ROLE_PATTERN.fullmatch(message)
-    if not match:
-        return None
-    return match.group(2)
+def read_rolename(text):
+    match = ROLENAME_PATTERN.fullmatch(text.strip())
+    return match and match.group('rolename')
 
 
 def get_command_args(message):
@@ -126,7 +124,7 @@ def add_role_command(update, context):
     if len(args) != 1:
         update.message.reply_text("Bad formatted request")
         return
-    role = find_role(args[0])
+    role = read_rolename(args[0])
     if not role:
         update.message.reply_text("Bad formatted request")
         return
@@ -156,7 +154,7 @@ def delete_role_command(update, context):
     if len(args) != 1:
         update.message.reply_text("Bad formatted request")
         return
-    role = find_role(args[0])
+    role = read_rolename(args[0])
     if not role:
         update.message.reply_text("Bad formatted request")
         return
@@ -177,7 +175,7 @@ def get_role_info_command(update, context):
     if len(args) != 1:
         update.message.reply_text("Bad formatted request")
         return
-    role = find_role(args[0])
+    role = read_rolename(args[0])
     if not role:
         update.message.reply_text("Bad formatted request")
         return
@@ -234,7 +232,7 @@ def create_role_command(update, context):
     if len(args) != 1:
         update.message.reply_text("Bad formatted request")
         return
-    role = find_role(args[0])
+    role = read_rolename(args[0])
     if not role:
         update.message.reply_text("Bad formatted request")
         return
@@ -255,7 +253,7 @@ def purge_role_command(update, context):
     if len(args) != 1:
         update.message.reply_text("Bad formatted request")
         return
-    role = find_role(args[0])
+    role = read_rolename(args[0])
     if not role:
         update.message.reply_text("Bad formatted request")
         return
@@ -275,7 +273,7 @@ def check_mention(update, context):
     if text is None:
         return
     users = set()
-    roles = [match[1] for match in ROLE_PATTERN.findall(text)]
+    roles = [match.group('rolename') for match in ROLE_PATTERN.finditer(text)]
     for role in roles:
         result = DB.select(group_id=chat_id, role=role)
         users.update(record.user_id for record in result)
