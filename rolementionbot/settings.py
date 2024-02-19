@@ -32,7 +32,6 @@ REGISTERED = set(map(int, REGISTERED.split(':')))
 DEBUG = os.getenv("DEBUG", "true")
 DEBUG = DEBUG.lower() in ["true", "yes"]
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
-CERT_FILEPATH = os.getenv("CERT_FILEPATH")
 PORT = os.getenv("PORT")
 if PORT is not None:
     PORT = int(PORT)
